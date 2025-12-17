@@ -10,9 +10,9 @@ const App = () => {
   return (
     <View style={{ flex: 1 }}>
         <NavigationContainer>
-          <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
+          <Stack.Navigator initialRouteName="MainScreen" screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="Main" component={MainScreen} />
+          <Stack.Screen name="MainScreen" component={MainScreen} />
         </Stack.Navigator>
     </NavigationContainer>
     </View>

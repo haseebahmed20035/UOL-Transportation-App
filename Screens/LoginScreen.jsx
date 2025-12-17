@@ -1,7 +1,8 @@
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity} from 'react-native'
 import React from 'react'
+import MainScreen from './MainScreen'
 
-const LoginScreen = () => {
+const LoginScreen = ({navigation}) => {
   return (
     <View style={{padding:27}}>
         <View style={styles.Body}>
@@ -22,7 +23,8 @@ const LoginScreen = () => {
             <TouchableOpacity>
                 <Text style={styles.forgotText}>Forgot your password?</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.LoginBtn}>
+            <TouchableOpacity style={styles.LoginBtn}
+            onPress={()=> {navigation.replace('MainScreen')}}>
                 <Text style={styles.LoginBtnText}>Login</Text>
             </TouchableOpacity>
             <Text style={{marginTop:35, alignSelf:"center", marginBottom:30}}>Or login using your account</Text>
