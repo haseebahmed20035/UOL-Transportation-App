@@ -8,8 +8,11 @@ import {
 } from 'react-native';
 import React from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
+import MyRoute from './MyRoute'
+import AllRoutes from './AllRoutes';
+import BusSchedule from './BusSchedule';
 
-const MainScreen = () => {
+const MainScreen = ({navigation}) => {
   return (
     <View style={styles.container}>
       {/* HEADER */}
@@ -48,17 +51,20 @@ const MainScreen = () => {
           <Text style={styles.cardTitle}>Route Information</Text>
 
           <View style={styles.row}>
-            <TouchableOpacity style={styles.box}>
+            <TouchableOpacity style={styles.box}
+            onPress={()=>{navigation.navigate('MyRoute')}}>
               <Icon name="navigate-outline" size={26} color="#0F2F1B" />
               <Text style={styles.boxText}>My Route</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.box}>
+            <TouchableOpacity style={styles.box}
+            onPress={()=>{navigation.navigate('AllRoutes')}}>
               <Icon name="map-outline" size={26} color="#0F2F1B" />
               <Text style={styles.boxText}>All Routes</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.box}>
+            <TouchableOpacity style={styles.box}
+            onPress={()=>{navigation.navigate('BusSchedule')}}>
               <Icon name="calendar-outline" size={26} color="#0F2F1B" />
               <Text style={styles.boxText}>Bus Schedule</Text>
             </TouchableOpacity>
@@ -75,7 +81,7 @@ const MainScreen = () => {
 
             <TouchableOpacity style={styles.box}>
               <Icon name="document-text-outline" size={26} color="#0F2F1B" />
-              <Text style={styles.boxText}>Request Transport</Text>
+              <Text style={styles.boxText}>Request For Transport</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -119,8 +125,6 @@ const MainScreen = () => {
 };
 
 export default MainScreen;
-
-/* ======================= STYLES ======================= */
 
 const styles = StyleSheet.create({
   container: {
