@@ -8,24 +8,95 @@ import {
 import React from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-/* TODAY ROUTE (same data model as BusSchedule) */
-const todayRoute = {
-  day: 'Monday',
-  title: 'UOL → Johar Town (Via DHA & Township)',
-  arrival: '8:00 AM',
-  departures: ['01:30 PM', '05:00 PM'],
-  busNo: 'UOL-07',
-  stops: [
-    'UOL Campus',
-    'DHA Rehbar',
-    'Bhoptian Chowk',
-    'Thokar Niaz Baig',
-    'Johar Town',
-    'Township',
-  ],
+/* GET TODAY ID */
+const getTodayId = () => {
+  const jsDay = new Date().getDay(); // 0=Sun, 1=Mon...
+  const map = { 0: 7, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6 };
+  return map[jsDay];
+};
+
+/* ROUTES DATA (SAME AS BUS SCHEDULE) */
+const routesByDay = {
+  1: {
+    day: 'Monday',
+    title: 'UOL → Johar Town (Via DHA & Township)',
+    arrival: '8:00 AM',
+    departures: ['01:30 PM', '05:00 PM'],
+    busNo: 'UOL-07',
+    stops: [
+      'UOL Campus',
+      'DHA Rehbar',
+      'Bhoptian Chowk',
+      'Thokar Niaz Baig',
+      'Johar Town',
+      'Township',
+    ],
+  },
+
+  2: {
+    day: 'Tuesday',
+    title: 'UOL → Johar Town (Via Valencia)',
+    arrival: '8:10 AM',
+    departures: ['02:00 PM', '05:30 PM'],
+    busNo: 'UOL-07',
+    stops: [
+      'UOL Campus',
+      'Thokar Niaz Baig',
+      'Valencia',
+      'Wapda Town',
+      'Johar Town',
+      'Allama Iqbal Town',
+    ],
+  },
+
+  3: {
+    day: 'Wednesday',
+    title: 'UOL → Johar Town (Canal Route)',
+    arrival: '8:20 AM',
+    departures: ['01:45 PM'],
+    busNo: 'UOL-07',
+    stops: [
+      'UOL Campus',
+      'Canal Road',
+      'Expo Center',
+      'Johar Town',
+    ],
+  },
+
+  4: {
+    day: 'Thursday',
+    title: 'UOL → Johar Town (Direct)',
+    arrival: '8:00 AM',
+    departures: ['01:30 PM'],
+    busNo: 'UOL-07',
+    stops: [
+      'UOL Campus',
+      'Thokar Niaz Baig',
+      'Johar Town',
+    ],
+  },
+
+  5: null, // Friday
+
+  6: {
+    day: 'Saturday',
+    title: 'Weekend Shuttle',
+    arrival: '9:00 AM',
+    departures: ['02:00 PM'],
+    busNo: 'UOL-Weekend',
+    stops: [
+      'UOL Campus',
+      'Johar Town',
+    ],
+  },
+
+  7: null, // Sunday
 };
 
 const MyRoute = ({ navigation }) => {
+  const todayId = getTodayId();
+  const todayRoute = routesByDay[todayId];
+
   return (
     <View style={styles.container}>
       {/* HEADER */}
@@ -33,7 +104,6 @@ const MyRoute = ({ navigation }) => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="arrow-back" size={26} color="white" />
         </TouchableOpacity>
-
         <Text style={styles.headerText}>My Route</Text>
         <View style={{ width: 26 }} />
       </View>
@@ -41,64 +111,75 @@ const MyRoute = ({ navigation }) => {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {/* ROUTE SUMMARY */}
         <View style={styles.card}>
-          <Text style={styles.routeName}>
-            Today’s Route ({todayRoute.day})
-          </Text>
-
-          <View style={styles.infoRow}>
-            <Icon name="navigate-outline" size={18} color="#175812" />
-            <Text style={styles.infoText}>{todayRoute.title}</Text>
-          </View>
-
-          <View style={styles.infoRow}>
-            <Icon name="bus-outline" size={18} color="#175812" />
-            <Text style={styles.infoText}>
-              Bus No: {todayRoute.busNo}
+          {!todayRoute ? (
+            <Text style={styles.noBusText}>
+              No bus service available today
             </Text>
-          </View>
+          ) : (
+            <>
+              <Text style={styles.routeName}>
+                Today’s Route ({todayRoute.day})
+              </Text>
 
-          <View style={styles.infoRow}>
-            <Icon name="time-outline" size={18} color="#175812" />
-            <Text style={styles.infoText}>
-              Arrival at University: {todayRoute.arrival}
-            </Text>
-          </View>
-
-          <View style={styles.divider} />
-
-          <Text style={styles.subTitle}>Departure from University</Text>
-
-          {todayRoute.departures.map((time, index) => (
-            <View key={index} style={styles.infoRow}>
-              <Icon name="bus-outline" size={18} color="#175812" />
-              <Text style={styles.infoText}>{time}</Text>
-            </View>
-          ))}
-        </View>
-
-        {/* STOPS */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Route Stops</Text>
-
-          {todayRoute.stops.map((stop, index) => (
-            <View key={index} style={styles.stopRow}>
-              <View style={styles.timeline}>
-                <View style={styles.dot} />
-                {index !== todayRoute.stops.length - 1 && (
-                  <View style={styles.line} />
-                )}
+              <View style={styles.infoRow}>
+                <Icon name="navigate-outline" size={18} color="#175812" />
+                <Text style={styles.infoText}>{todayRoute.title}</Text>
               </View>
 
-              <Text style={styles.stopText}>{stop}</Text>
-            </View>
-          ))}
+              <View style={styles.infoRow}>
+                <Icon name="bus-outline" size={18} color="#175812" />
+                <Text style={styles.infoText}>
+                  Bus No: {todayRoute.busNo}
+                </Text>
+              </View>
+
+              <View style={styles.infoRow}>
+                <Icon name="time-outline" size={18} color="#175812" />
+                <Text style={styles.infoText}>
+                  Arrival at University: {todayRoute.arrival}
+                </Text>
+              </View>
+
+              <View style={styles.divider} />
+
+              <Text style={styles.subTitle}>Departure from University</Text>
+
+              {todayRoute.departures.map((time, index) => (
+                <View key={index} style={styles.infoRow}>
+                  <Icon name="bus-outline" size={18} color="#175812" />
+                  <Text style={styles.infoText}>{time}</Text>
+                </View>
+              ))}
+            </>
+          )}
         </View>
 
+        {/* ROUTE STOPS */}
+        {todayRoute && (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Route Stops</Text>
+
+            {todayRoute.stops.map((stop, index) => (
+              <View key={index} style={styles.stopRow}>
+                <View style={styles.timeline}>
+                  <View style={styles.dot} />
+                  {index !== todayRoute.stops.length - 1 && (
+                    <View style={styles.line} />
+                  )}
+                </View>
+                <Text style={styles.stopText}>{stop}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+
         {/* ACTION */}
-        <TouchableOpacity style={styles.trackButton}>
-          <Icon name="location-outline" size={20} color="white" />
-          <Text style={styles.trackText}>Track Live Bus</Text>
-        </TouchableOpacity>
+        {todayRoute && (
+          <TouchableOpacity style={styles.trackButton}>
+            <Icon name="location-outline" size={20} color="white" />
+            <Text style={styles.trackText}>Track Live Bus</Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
     </View>
   );
@@ -106,13 +187,13 @@ const MyRoute = ({ navigation }) => {
 
 export default MyRoute;
 
+/* STYLES */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5F7F6',
   },
 
-  /* HEADER */
   header: {
     flexDirection: 'row',
     backgroundColor: '#175812',
@@ -180,6 +261,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#175812',
     marginBottom: 12,
+  },
+
+  noBusText: {
+    fontSize: 15,
+    color: '#777',
+    fontStyle: 'italic',
   },
 
   /* STOPS */

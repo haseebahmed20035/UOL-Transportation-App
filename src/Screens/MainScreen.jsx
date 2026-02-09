@@ -69,17 +69,22 @@ const MainScreen = ({navigation}) => {
               <Text style={styles.boxText}>Bus Schedule</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.box}>
+            <TouchableOpacity style={styles.box}
+            onPress={()=>{navigation.navigate('LiveBusTracking')}}>
               <Icon name="bus-outline" size={26} color="#0F2F1B" />
               <Text style={styles.boxText}>Live Bus Tracking</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.box}>
+            <TouchableOpacity style={styles.box}
+            onPress={()=>{navigation.navigate('ChangeRoute')}}
+            >
               <Icon name="swap-horizontal-outline" size={26} color="#0F2F1B" />
               <Text style={styles.boxText}>Change Route</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.box}>
+            <TouchableOpacity style={styles.box}
+            onPress={()=>{navigation.navigate('RequestForTransport')}}
+            >
               <Icon name="document-text-outline" size={26} color="#0F2F1B" />
               <Text style={styles.boxText}>Request For Transport</Text>
             </TouchableOpacity>
