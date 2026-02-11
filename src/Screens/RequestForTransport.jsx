@@ -1,22 +1,22 @@
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
-import React from 'react'
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import React from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-const RequestForTransport = ({navigation}) => {
+const RequestForTransport = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-              <TouchableOpacity onPress={() => navigation.goBack()}>
-                <Icon name="arrow-back" size={26} color="white" />
-              </TouchableOpacity>
-              <Text style={styles.headerText}>Request For Transport</Text>
-              <View style={{ width: 26 }} />
-            </View>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Icon name="arrow-back" size={26} color="white" />
+        </TouchableOpacity>
+        <Text style={styles.headerText}>Request For Transport</Text>
+        <View style={{ width: 26 }} />
+      </View>
     </View>
-  )
-}
+  );
+};
 
-export default RequestForTransport
+export default RequestForTransport;
 
 const styles = StyleSheet.create({
   container: {
@@ -38,4 +38,4 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-})
+});

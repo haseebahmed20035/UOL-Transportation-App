@@ -12,6 +12,8 @@ import ArrivalSchedule from './src/Screens/ArrivalSchedule'
 import LiveBusTracking from './src/Screens/LiveBusTracking'
 import ChangeRoute from './src/Screens/ChangeRoute'
 import RequestForTransport from './src/Screens/RequestForTransport'
+import MyArrivalRoute from './src/Screens/MyArrivalRoute'
+import MyDepartureRoute from './src/Screens/MyDepartureRoute'
 
 const Stack = createNativeStackNavigator();
 const App = () => {
@@ -29,6 +31,8 @@ const App = () => {
           <Stack.Screen name="LiveBusTracking" component={LiveBusTracking} />
           <Stack.Screen name="ChangeRoute" component={ChangeRoute} />
           <Stack.Screen name="RequestForTransport" component={RequestForTransport} />
+          <Stack.Screen name="MyArrivalRoute" component={MyArrivalRoute} />
+          <Stack.Screen name="MyDepartureRoute" component={MyDepartureRoute} />
         </Stack.Navigator>
     </NavigationContainer>
     </View>

@@ -126,9 +126,7 @@ const ArrivalSchedule = ({ navigation }) => {
       {/* CONTENT */}
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.scheduleCard}>
-          <Text style={styles.cardTitle}>
-            Schedule for {selectedDay.day}
-          </Text>
+          <Text style={styles.cardTitle}>Schedule for {selectedDay.day}</Text>
 
           {!route ? (
             <Text style={styles.noBusText}>
@@ -246,7 +244,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     elevation: 3,
-    minHeight: 575, 
+    minHeight: 575,
   },
 
   cardTitle: {
