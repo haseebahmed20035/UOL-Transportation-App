@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import React from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
+import MapView, { Marker, Polyline } from 'react-native-maps';
 
 const getTodayId = () => {
   const jsDay = new Date().getDay();
@@ -21,12 +22,12 @@ const routesByDay = {
     arrival: '8:00 AM',
     busNo: 'UOL-07',
     stops: [
-      'Johar Town',
-      'Township',
-      'Thokar Niaz Baig',
-      'Bhoptian Chowk',
-      'DHA Rehbar',
-      'UOL Campus',
+      { name: 'Johar Town', lat: 31.46, lng: 74.28 },
+      { name: 'Township', lat: 31.4504, lng: 74.2906 },
+      { name: 'Thokar Niaz Baig', lat: 31.4803, lng: 74.275 },
+      { name: 'Bhoptian Chowk', lat: 31.49, lng: 74.26 },
+      { name: 'DHA Rehbar', lat: 31.43, lng: 74.24 },
+      { name: 'UOL Campus', lat: 31.36, lng: 74.18 },
     ],
   },
 
@@ -36,12 +37,12 @@ const routesByDay = {
     arrival: '8:00 AM',
     busNo: 'UOL-07',
     stops: [
-      'Allama Iqbal Town',
-      'Johar Town',
-      'Wapda Town',
-      'Valencia',
-      'Thokar Niaz Baig',
-      'UOL Campus',
+      { name: 'Allama Iqbal Town', lat: 31.51, lng: 74.3 },
+      { name: 'Johar Town', lat: 31.46, lng: 74.28 },
+      { name: 'Wapda Town', lat: 31.43, lng: 74.27 },
+      { name: 'Valencia', lat: 31.4, lng: 74.26 },
+      { name: 'Thokar Niaz Baig', lat: 31.4803, lng: 74.275 },
+      { name: 'UOL Campus', lat: 31.36, lng: 74.18 },
     ],
   },
 
@@ -51,10 +52,10 @@ const routesByDay = {
     arrival: '8:00 AM',
     busNo: 'UOL-07',
     stops: [
-      'Johar Town',
-      'Expo Center',
-      'Canal Road',
-      'UOL Campus',
+      { name: 'Johar Town', lat: 31.46, lng: 74.28 },
+      { name: 'Expo Center', lat: 31.48, lng: 74.32 },
+      { name: 'Canal Road', lat: 31.5, lng: 74.33 },
+      { name: 'UOL Campus', lat: 31.36, lng: 74.18 },
     ],
   },
 
@@ -64,23 +65,25 @@ const routesByDay = {
     arrival: '8:00 AM',
     busNo: 'UOL-07',
     stops: [
-      'Johar Town',
-      'Thokar Niaz Baig',
-      'UOL Campus',
+      { name: 'Johar Town', lat: 31.46, lng: 74.28 },
+      { name: 'Thokar Niaz Baig', lat: 31.4803, lng: 74.275 },
+      { name: 'UOL Campus', lat: 31.36, lng: 74.18 },
     ],
   },
 
   5: null,
+
   6: {
     day: 'Saturday',
     title: 'Weekend Shuttle',
     arrival: '9:00 AM',
     busNo: 'UOL-Weekend',
     stops: [
-      'Johar Town',
-      'UOL Campus',
+      { name: 'Johar Town', lat: 31.46, lng: 74.28 },
+      { name: 'UOL Campus', lat: 31.36, lng: 74.18 },
     ],
   },
+
   7: null,
 };
 
@@ -103,9 +106,7 @@ const MyArrivalRoute = ({ navigation }) => {
         {/* ROUTE SUMMARY */}
         <View style={styles.card}>
           {!todayRoute ? (
-            <Text style={styles.noBusText}>
-              No bus service available today
-            </Text>
+            <Text style={styles.noBusText}>No bus service available today</Text>
           ) : (
             <>
               <Text style={styles.routeName}>
@@ -119,9 +120,7 @@ const MyArrivalRoute = ({ navigation }) => {
 
               <View style={styles.infoRow}>
                 <Icon name="bus-outline" size={18} color="#175812" />
-                <Text style={styles.infoText}>
-                  Bus No: {todayRoute.busNo}
-                </Text>
+                <Text style={styles.infoText}>Bus No: {todayRoute.busNo}</Text>
               </View>
 
               <View style={styles.infoRow}>
@@ -133,8 +132,6 @@ const MyArrivalRoute = ({ navigation }) => {
             </>
           )}
         </View>
-
-        {/* ROUTE STOPS */}
         {todayRoute && (
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Route Stops</Text>
@@ -147,9 +144,46 @@ const MyArrivalRoute = ({ navigation }) => {
                     <View style={styles.line} />
                   )}
                 </View>
-                <Text style={styles.stopText}>{stop}</Text>
+                <Text style={styles.stopText}>{stop.name}</Text>
               </View>
             ))}
+          </View>
+        )}
+        {/* MAP */}
+        {todayRoute && (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Route Map</Text>
+
+            <MapView
+              style={styles.map}
+              initialRegion={{
+                latitude: todayRoute.stops[0].lat,
+                longitude: todayRoute.stops[0].lng,
+                latitudeDelta: 0.25,
+                longitudeDelta: 0.25,
+              }}
+            >
+              {todayRoute.stops.map((stop, index) => (
+                <Marker
+                  key={index}
+                  coordinate={{
+                    latitude: stop.lat,
+                    longitude: stop.lng,
+                  }}
+                  title={stop.name}
+                  pinColor="red"
+                />
+              ))}
+
+              <Polyline
+                coordinates={todayRoute.stops.map(stop => ({
+                  latitude: stop.lat,
+                  longitude: stop.lng,
+                }))}
+                strokeWidth={4}
+                strokeColor="#175812"
+              />
+            </MapView>
           </View>
         )}
 
@@ -167,7 +201,6 @@ const MyArrivalRoute = ({ navigation }) => {
 
 export default MyArrivalRoute;
 
-/* SAME STYLES AS DEPARTURE SCREEN */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -233,6 +266,11 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#777',
     fontStyle: 'italic',
+  },
+
+  map: {
+    height: 180,
+    borderRadius: 10,
   },
 
   stopRow: {

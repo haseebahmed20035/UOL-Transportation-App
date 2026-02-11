@@ -5,9 +5,9 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, Polyline } from 'react-native-maps';
 
 const routesData = [
   {
@@ -19,7 +19,7 @@ const routesData = [
       { name: 'Township', lat: 31.4504, lng: 74.2906 },
       { name: 'Akbar Chowk', lat: 31.4803, lng: 74.3239 },
       { name: 'Kalma Chowk', lat: 31.5001, lng: 74.3297 },
-      { name: 'UOL Campus', lat: 31.3600, lng: 74.1800 },
+      { name: 'UOL Campus', lat: 31.36, lng: 74.18 },
     ],
   },
   {
@@ -28,14 +28,17 @@ const routesData = [
     busNo: 'UOL-12',
     time: '7:00 AM - 5:00 PM',
     stops: [
-      { name: 'DHA Phase 4', lat: 31.4697, lng: 74.4100 },
-      { name: 'Ghazi Road', lat: 31.4400, lng: 74.3800 },
-      { name: 'UOL Campus', lat: 31.3600, lng: 74.1800 },
+      { name: 'DHA Phase 4', lat: 31.4697, lng: 74.41 },
+      { name: 'Ghazi Road', lat: 31.44, lng: 74.38 },
+      { name: 'UOL Campus', lat: 31.36, lng: 74.18 },
     ],
   },
 ];
 
 const AllRoutes = ({ navigation }) => {
+  const [selectedRoute, setSelectedRoute] = useState(null);
+  const [showDetails, setShowDetails] = useState(false);
+
   return (
     <View style={styles.container}>
       {/* HEADER */}
@@ -51,7 +54,6 @@ const AllRoutes = ({ navigation }) => {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {routesData.map(route => (
           <View key={route.id} style={styles.card}>
-            {/* ROUTE INFO */}
             <Text style={styles.routeName}>{route.name}</Text>
 
             <View style={styles.infoRow}>
@@ -66,25 +68,46 @@ const AllRoutes = ({ navigation }) => {
 
             <View style={styles.infoRow}>
               <Icon name="location-outline" size={18} color="#175812" />
-              <Text style={styles.infoText}>
-                Stops: {route.stops.length}
-              </Text>
+              <Text style={styles.infoText}>Stops: {route.stops.length}</Text>
             </View>
 
+            {/* VIEW DETAILS BUTTON */}
+            <TouchableOpacity
+              style={styles.detailsBtn}
+              onPress={() => {
+                setSelectedRoute(route);
+                setShowDetails(true);
+              }}
+            >
+              <Text style={styles.detailsText}>View Route Details</Text>
+              <Icon name="chevron-forward" size={18} color="#175812" />
+            </TouchableOpacity>
+          </View>
+        ))}
+      </ScrollView>
+
+      {/* DETAILS MODAL */}
+      {showDetails && selectedRoute && (
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>{selectedRoute.name}</Text>
+
+            <Text style={styles.infoText}>Bus No: {selectedRoute.busNo}</Text>
+
+            <Text style={styles.infoText}>Time: {selectedRoute.time}</Text>
+
             {/* MAP */}
-            <Text style={{fontWeight:"bold"}}>MAP HERE</Text>
-            {/* <MapView
+            <MapView
               style={styles.map}
               initialRegion={{
-                latitude: route.stops[0].lat,
-                longitude: route.stops[0].lng,
+                latitude: selectedRoute.stops[0].lat,
+                longitude: selectedRoute.stops[0].lng,
                 latitudeDelta: 0.2,
                 longitudeDelta: 0.2,
               }}
-              scrollEnabled={false}
-              zoomEnabled={false}
             >
-              {route.stops.map((stop, index) => (
+              {/* MARKERS */}
+              {selectedRoute.stops.map((stop, index) => (
                 <Marker
                   key={index}
                   coordinate={{
@@ -94,16 +117,42 @@ const AllRoutes = ({ navigation }) => {
                   title={stop.name}
                 />
               ))}
-            </MapView> */}
 
-            {/* ACTION */}
-            <TouchableOpacity style={styles.detailsBtn}>
-              <Text style={styles.detailsText}>View Route Details</Text>
-              <Icon name="chevron-forward" size={18} color="#175812" />
+              {/* ROUTE LINE */}
+              <Polyline
+                coordinates={selectedRoute.stops.map(stop => ({
+                  latitude: stop.lat,
+                  longitude: stop.lng,
+                }))}
+                strokeWidth={4}
+                strokeColor="#175812"
+              />
+            </MapView>
+
+            {/* STOPS */}
+            <Text style={styles.subTitle}>Route Stops</Text>
+
+            {selectedRoute.stops.map((stop, index) => (
+              <View key={index} style={styles.stopRow}>
+                <View style={styles.timeline}>
+                  <View style={styles.dot} />
+                  {index !== selectedRoute.stops.length - 1 && (
+                    <View style={styles.line} />
+                  )}
+                </View>
+                <Text style={styles.stopText}>{stop.name}</Text>
+              </View>
+            ))}
+
+            <TouchableOpacity
+              style={styles.closeBtn}
+              onPress={() => setShowDetails(false)}
+            >
+              <Text style={styles.closeText}>Close</Text>
             </TouchableOpacity>
           </View>
-        ))}
-      </ScrollView>
+        </View>
+      )}
     </View>
   );
 };
@@ -116,7 +165,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F7F6',
   },
 
-  /* HEADER */
   header: {
     flexDirection: 'row',
     backgroundColor: '#175812',
@@ -164,12 +212,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  map: {
-    height: 150,
-    borderRadius: 10,
-    marginTop: 10,
-  },
-
   detailsBtn: {
     marginTop: 12,
     borderTopWidth: 1,
@@ -184,5 +226,85 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: 'bold',
     color: '#175812',
+  },
+
+  modalOverlay: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    padding: 20,
+  },
+
+  modalCard: {
+    backgroundColor: 'white',
+    borderRadius: 14,
+    padding: 16,
+    maxHeight: '90%',
+  },
+
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: '#175812',
+  },
+
+  map: {
+    height: 160,
+    borderRadius: 10,
+    marginVertical: 10,
+  },
+
+  subTitle: {
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#175812',
+  },
+
+  closeBtn: {
+    marginTop: 12,
+    backgroundColor: '#175812',
+    padding: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+
+  closeText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+
+  stopRow: {
+    flexDirection: 'row',
+    marginBottom: 10,
+  },
+
+  timeline: {
+    width: 20,
+    alignItems: 'center',
+  },
+
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#175812',
+  },
+
+  line: {
+    width: 2,
+    height: 28,
+    backgroundColor: '#175812',
+    marginTop: 2,
+  },
+
+  stopText: {
+    marginLeft: 10,
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
