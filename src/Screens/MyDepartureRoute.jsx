@@ -8,89 +8,7 @@ import {
 import React from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MapView, { Marker, Polyline } from 'react-native-maps';
-
-const getTodayId = () => {
-  const jsDay = new Date().getDay();
-  const map = { 0: 7, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6 };
-  return map[jsDay];
-};
-
-const routesByDay = {
-  1: {
-    day: 'Monday',
-    title: 'UOL → Johar Town (Via DHA & Township)',
-    arrival: '8:00 AM',
-    departures: ['01:30 PM', '05:00 PM'],
-    busNo: 'UOL-07',
-    stops: [
-      { name: 'UOL Campus', lat: 31.3600, lng: 74.1800 },
-      { name: 'DHA Rehbar', lat: 31.4300, lng: 74.2400 },
-      { name: 'Bhoptian Chowk', lat: 31.4600, lng: 74.2550 },
-      { name: 'Thokar Niaz Baig', lat: 31.4803, lng: 74.2750 },
-      { name: 'Johar Town', lat: 31.4600, lng: 74.2800 },
-      { name: 'Township', lat: 31.4504, lng: 74.2906 },
-    ],
-  },
-
-  2: {
-    day: 'Tuesday',
-    title: 'UOL → Johar Town (Via Valencia)',
-    arrival: '8:00 AM',
-    departures: ['02:00 PM', '05:30 PM'],
-    busNo: 'UOL-07',
-    stops: [
-      { name: 'UOL Campus', lat: 31.3600, lng: 74.1800 },
-      { name: 'Thokar Niaz Baig', lat: 31.4803, lng: 74.2750 },
-      { name: 'Valencia', lat: 31.4000, lng: 74.2600 },
-      { name: 'Wapda Town', lat: 31.4300, lng: 74.2700 },
-      { name: 'Johar Town', lat: 31.4600, lng: 74.2800 },
-      { name: 'Allama Iqbal Town', lat: 31.5100, lng: 74.3000 },
-    ],
-  },
-
-  3: {
-    day: 'Wednesday',
-    title: 'UOL → Johar Town (Canal Route)',
-    arrival: '8:00 AM',
-    departures: ['01:45 PM'],
-    busNo: 'UOL-07',
-    stops: [
-      { name: 'UOL Campus', lat: 31.3600, lng: 74.1800 },
-      { name: 'Canal Road', lat: 31.5000, lng: 74.3300 },
-      { name: 'Expo Center', lat: 31.4800, lng: 74.3200 },
-      { name: 'Johar Town', lat: 31.4600, lng: 74.2800 },
-    ],
-  },
-
-  4: {
-    day: 'Thursday',
-    title: 'UOL → Johar Town (Direct)',
-    arrival: '8:00 AM',
-    departures: ['01:30 PM'],
-    busNo: 'UOL-07',
-    stops: [
-      { name: 'UOL Campus', lat: 31.3600, lng: 74.1800 },
-      { name: 'Thokar Niaz Baig', lat: 31.4803, lng: 74.2750 },
-      { name: 'Johar Town', lat: 31.4600, lng: 74.2800 },
-    ],
-  },
-
-  5: null,
-
-  6: {
-    day: 'Saturday',
-    title: 'Weekend Shuttle',
-    arrival: '9:00 AM',
-    departures: ['02:00 PM'],
-    busNo: 'UOL-Weekend',
-    stops: [
-      { name: 'UOL Campus', lat: 31.3600, lng: 74.1800 },
-      { name: 'Johar Town', lat: 31.4600, lng: 74.2800 },
-    ],
-  },
-
-  7: null,
-};
+import { routesByDay, getTodayId } from '../data/RouteModel';
 
 const MyDepartureRoute = ({ navigation }) => {
   const todayId = getTodayId();
@@ -122,20 +40,20 @@ const MyDepartureRoute = ({ navigation }) => {
 
               <View style={styles.infoRow}>
                 <Icon name="navigate-outline" size={18} color="#175812" />
-                <Text style={styles.infoText}>{todayRoute.title}</Text>
+                <Text style={styles.infoText}>{todayRoute.departure.title}</Text>
               </View>
 
               <View style={styles.infoRow}>
                 <Icon name="bus-outline" size={18} color="#175812" />
                 <Text style={styles.infoText}>
-                  Bus No: {todayRoute.busNo}
+                  Bus No: {todayRoute.departure.busNo}
                 </Text>
               </View>
 
               <View style={styles.infoRow}>
                 <Icon name="time-outline" size={18} color="#175812" />
                 <Text style={styles.infoText}>
-                  Arrival at University: {todayRoute.arrival}
+                  Arrival at University: {todayRoute.departure.arrival}
                 </Text>
               </View>
 
@@ -143,7 +61,7 @@ const MyDepartureRoute = ({ navigation }) => {
 
               <Text style={styles.subTitle}>Departure from University</Text>
 
-              {todayRoute.departures.map((time, index) => (
+              {todayRoute.departure.timings.map((time, index) => (
                 <View key={index} style={styles.infoRow}>
                   <Icon name="bus-outline" size={18} color="#175812" />
                   <Text style={styles.infoText}>{time}</Text>

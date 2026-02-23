@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import React, { useState } from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { routesByDay, getTodayId } from '../data/RouteModel';
 
 const allRoutes = [
   {
@@ -37,7 +38,7 @@ const allRoutes = [
 ];
 
 const ChangeRoute = ({ navigation }) => {
-  const [currentRoute, setCurrentRoute] = useState(allRoutes[0]);
+  const todayRoute = routesByDay[getTodayId()];
   const [requestedRoute, setRequestedRoute] = useState(null);
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
@@ -73,11 +74,11 @@ const ChangeRoute = ({ navigation }) => {
               justifyContent: 'space-between',
             }}
           >
-            <Text style={styles.routeTitle}>{currentRoute.title}</Text>
+            <Text style={styles.routeTitle}>{todayRoute?.arrival?.title}</Text>
             <TouchableOpacity
               onPress={() => {
                 setShowDetails(true);
-                setSelectedRoute(currentRoute);
+                setSelectedRoute(todayRoute);
               }}
             >
               <Icon name="information-circle" size={35} color="#175812" />
@@ -85,13 +86,15 @@ const ChangeRoute = ({ navigation }) => {
           </View>
           <View style={styles.infoRow}>
             <Icon name="time-outline" size={18} color="#175812" />
-            <Text style={styles.infoText}>Arrival: {currentRoute.arrival}</Text>
+            <Text style={styles.infoText}>
+              Arrival: {todayRoute?.arrival?.time}
+            </Text>
           </View>
 
           <View style={styles.infoRow}>
             <Icon name="log-out-outline" size={18} color="#175812" />
             <Text style={styles.infoText}>
-              Departure: {currentRoute.departures.join(', ')}
+              Departure: {todayRoute?.departure?.timings.join(', ')}
             </Text>
           </View>
         </View>
@@ -101,14 +104,14 @@ const ChangeRoute = ({ navigation }) => {
 
         {allRoutes.map(
           route =>
-            route.id !== currentRoute.id && (
+            route.id !== todayRoute?.id && (
               <View key={route.id} style={styles.routeCard}>
                 <Text style={styles.routeTitle}>{route.title}</Text>
 
                 <Text style={styles.infoText}>Arrival: {route.arrival}</Text>
 
                 <Text style={styles.infoText}>
-                  Departure: {route.departures.join(', ')}
+                  Departure: {todayRoute?.departure?.timings.join(', ')}
                 </Text>
 
                 <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
@@ -154,16 +157,23 @@ const ChangeRoute = ({ navigation }) => {
       {showDetails && selectedRoute && (
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>{selectedRoute.title}</Text>
-
-            <Text style={styles.infoText}>Bus No: {selectedRoute.busNo}</Text>
-
-            <Text style={styles.infoText}>
-              Arrival: {selectedRoute.arrival}
+            <Text style={styles.modalTitle}>
+              {selectedRoute?.arrival?.title || selectedRoute?.title}
             </Text>
 
             <Text style={styles.infoText}>
-              Departure: {selectedRoute.departures.join(', ')}
+              Bus No: {selectedRoute?.arrival?.busNo || selectedRoute?.busNo}
+            </Text>
+
+            <Text style={styles.infoText}>
+              Arrival: {selectedRoute?.arrival?.time || selectedRoute?.arrival}
+            </Text>
+
+            <Text style={styles.infoText}>
+              Departure:{' '}
+              {selectedRoute?.departure?.timings
+                ? selectedRoute.departure.timings.join(', ')
+                : selectedRoute?.departures?.join(', ')}
             </Text>
 
             <Text style={styles.subTitle}>Route Stops</Text>
@@ -176,7 +186,9 @@ const ChangeRoute = ({ navigation }) => {
                     <View style={styles.line} />
                   )}
                 </View>
-                <Text style={styles.stopText}>{stop}</Text>
+                <Text style={styles.stopText}>
+                  {typeof stop === 'string' ? stop : stop.name}
+                </Text>
               </View>
             ))}
 

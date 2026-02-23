@@ -4,12 +4,20 @@ export const getTodayId = () => {
   return map[jsDay];
 };
 
-export const arrivalRoutesByDay = {
+export const routesByDay = {
+
   1: {
     day: 'Monday',
-    title: 'Johar Town → UOL (Via DHA & Township)',
-    arrival: '8:00 AM',
-    busNo: 'UOL-07',
+    arrival: {
+      title: 'Johar Town → UOL (Via DHA & Township)',
+      time: '8:00 AM',
+      busNo: 'UOL-07',
+    },
+    departure: {
+      title: 'UOL → Johar Town (Via DHA & Township)',
+      timings: ['01:30 PM', '05:00 PM'],
+      busNo: 'UOL-07',
+    },
     stops: [
       { name: 'Johar Town', lat: 31.46, lng: 74.28 },
       { name: 'Township', lat: 31.4504, lng: 74.2906 },
@@ -22,9 +30,16 @@ export const arrivalRoutesByDay = {
 
   2: {
     day: 'Tuesday',
-    title: 'Johar Town → UOL (Via Valencia)',
-    arrival: '8:00 AM',
-    busNo: 'UOL-07',
+    arrival: {
+      title: 'Johar Town → UOL (Via Valencia)',
+      time: '8:00 AM',
+      busNo: 'UOL-07',
+    },
+    departure: {
+      title: 'UOL → Johar Town (Via Valencia)',
+      timings: ['02:00 PM', '05:30 PM'],
+      busNo: 'UOL-07',
+    },
     stops: [
       { name: 'Allama Iqbal Town', lat: 31.51, lng: 74.3 },
       { name: 'Johar Town', lat: 31.46, lng: 74.28 },
@@ -37,9 +52,16 @@ export const arrivalRoutesByDay = {
 
   3: {
     day: 'Wednesday',
-    title: 'Johar Town → UOL (Canal Route)',
-    arrival: '8:00 AM',
-    busNo: 'UOL-07',
+    arrival: {
+      title: 'Johar Town → UOL (Canal Route)',
+      time: '8:00 AM',
+      busNo: 'UOL-07',
+    },
+    departure: {
+      title: 'UOL → Johar Town (Canal Route)',
+      timings: ['01:45 PM'],
+      busNo: 'UOL-07',
+    },
     stops: [
       { name: 'Johar Town', lat: 31.46, lng: 74.28 },
       { name: 'Expo Center', lat: 31.48, lng: 74.32 },
@@ -50,9 +72,16 @@ export const arrivalRoutesByDay = {
 
   4: {
     day: 'Thursday',
-    title: 'Johar Town → UOL (Direct)',
-    arrival: '8:00 AM',
-    busNo: 'UOL-07',
+    arrival: {
+      title: 'Johar Town → UOL (Direct)',
+      time: '8:00 AM',
+      busNo: 'UOL-07',
+    },
+    departure: {
+      title: 'UOL → Johar Town (Direct)',
+      timings: ['01:30 PM'],
+      busNo: 'UOL-07',
+    },
     stops: [
       { name: 'Johar Town', lat: 31.46, lng: 74.28 },
       { name: 'Thokar Niaz Baig', lat: 31.4803, lng: 74.275 },
@@ -60,18 +89,32 @@ export const arrivalRoutesByDay = {
     ],
   },
 
-  5: null,
+  5: {
+    day: 'Friday',
+    noService: true,
+  },
 
   6: {
     day: 'Saturday',
-    title: 'Weekend Shuttle',
-    arrival: '9:00 AM',
-    busNo: 'UOL-Weekend',
+    arrival: {
+      title: 'Weekend Shuttle',
+      time: '9:00 AM',
+      busNo: 'UOL-Weekend',
+    },
+    departure: {
+      title: 'Weekend Shuttle',
+      timings: ['02:00 PM'],
+      busNo: 'UOL-Weekend',
+    },
     stops: [
       { name: 'Johar Town', lat: 31.46, lng: 74.28 },
       { name: 'UOL Campus', lat: 31.36, lng: 74.18 },
     ],
   },
 
-  7: null,
+  7: {
+    day: 'Sunday',
+    noService: true,
+  },
+
 };

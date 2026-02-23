@@ -7,78 +7,50 @@ import {
 } from 'react-native';
 import React, { useState } from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { routesByDay, getTodayId } from '../data/RouteModel';
 
-const days = [
-  { id: 1, day: 'Mon', date: '16 Dec' },
-  { id: 2, day: 'Tue', date: '17 Dec' },
-  { id: 3, day: 'Wed', date: '18 Dec' },
-  { id: 4, day: 'Thu', date: '19 Dec' },
-  { id: 5, day: 'Fri', date: '20 Dec' },
-  { id: 6, day: 'Sat', date: '21 Dec' },
-  { id: 7, day: 'Sun', date: '22 Dec' },
-];
 
-const routesByDay = {
-  1: {
-    title: 'Johar Town → UOL (Via DHA & Township)',
-    arrival: '8:00 AM',
-    stops: [
-      'Johar Town',
-      'Township',
-      'Thokar Niaz Baig',
-      'Bhoptian Chowk',
-      'DHA Rehbar',
-      'UOL Campus',
-    ],
-  },
+// 🔥 CURRENT WEEK GENERATOR (MON–SUN)
+const getCurrentWeek = () => {
 
-  2: {
-    title: 'Johar Town → UOL (Via Valencia)',
-    arrival: '8:10 AM',
-    stops: [
-      'Johar Town',
-      'Wapda Town',
-      'Valencia',
-      'Thokar Niaz Baig',
-      'UOL Campus',
-    ],
-  },
+  const today = new Date();
+  const jsDay = today.getDay();
 
-  3: {
-    title: 'Johar Town → UOL (Canal Route)',
-    arrival: '8:20 AM',
-    stops: ['Johar Town', 'Expo Center', 'Canal Road', 'UOL Campus'],
-  },
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - (jsDay === 0 ? 6 : jsDay - 1));
 
-  4: {
-    title: 'Johar Town → UOL (Direct)',
-    arrival: '8:00 AM',
-    stops: ['Johar Town', 'Thokar Niaz Baig', 'UOL Campus'],
-  },
+  const week = [];
 
-  5: {
-    title: 'Johar Town → UOL (Canal Route)',
-    arrival: '8:20 AM',
-    stops: ['Johar Town', 'Expo Center', 'Canal Road', 'UOL Campus'],
-  },
+  for (let i = 0; i < 7; i++) {
 
-  6: {
-    title: 'Weekend Shuttle',
-    arrival: '9:00 AM',
-    stops: ['Johar Town', 'UOL Campus'],
-  },
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
 
-  7: null,
+    week.push({
+      id: i + 1,
+      day: d.toLocaleDateString('en-US', { weekday: 'short' }),
+      date: d.getDate() + ' ' +
+        d.toLocaleDateString('en-US', { month: 'short' }),
+    });
+  }
+
+  return week;
 };
 
-const ArrivalSchedule = ({ navigation }) => {
-  const [enableDay, setEnableDay] = useState(1);
 
-  const selectedDay = days.find(d => d.id === enableDay);
-  const route = routesByDay[enableDay];
+const ArrivalSchedule = ({ navigation }) => {
+
+  const weekDays = getCurrentWeek();
+  const [enableDay, setEnableDay] = useState(getTodayId());
+
+  const selectedDay = weekDays.find(d => d.id === enableDay);
+  const route = routesByDay?.[enableDay] ?? null;
+  const noService = route?.noService === true;
+
 
   return (
     <View style={styles.container}>
+
       {/* HEADER */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -88,74 +60,99 @@ const ArrivalSchedule = ({ navigation }) => {
         <View style={{ width: 26 }} />
       </View>
 
-      {/* DATE SELECTOR */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.dateRow}
-      >
-        {days.map(item => (
-          <TouchableOpacity
-            key={item.id}
-            style={[
-              styles.dateBox,
-              enableDay === item.id && styles.activeDateBox,
-            ]}
-            onPress={() => setEnableDay(item.id)}
-          >
-            <Text
+
+      {/* WEEK SELECTOR */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.dateRow}>
+
+        {weekDays.map(item => {
+
+          const noRoute = routesByDay?.[item.id]?.noService;
+
+          return (
+            <TouchableOpacity
+              key={item.id}
               style={[
+                styles.dateBox,
+                enableDay === item.id && styles.activeDateBox,
+                noRoute && styles.noRouteDay
+              ]}
+              onPress={() => setEnableDay(item.id)}
+            >
+
+              <Text style={[
                 styles.dayText,
-                enableDay === item.id && styles.activeText,
-              ]}
-            >
-              {item.day}
-            </Text>
-            <Text
-              style={[
+                enableDay === item.id && styles.activeText
+              ]}>
+                {item.day}
+              </Text>
+
+              <Text style={[
                 styles.dateText,
-                enableDay === item.id && styles.activeText,
-              ]}
-            >
-              {item.date}
-            </Text>
-          </TouchableOpacity>
-        ))}
+                enableDay === item.id && styles.activeText
+              ]}>
+                {item.date}
+              </Text>
+
+            </TouchableOpacity>
+          );
+        })}
+
       </ScrollView>
+
 
       {/* CONTENT */}
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.scheduleCard}>
-          <Text style={styles.cardTitle}>Schedule for {selectedDay.day}</Text>
 
-          {!route ? (
-            <Text style={styles.noBusText}>
-              No bus service available on this day
-            </Text>
+        <View style={styles.scheduleCard}>
+
+          <Text style={styles.cardTitle}>
+            Schedule for {selectedDay?.day}
+          </Text>
+
+
+          {noService ? (
+
+            <View style={styles.noServiceContainer}>
+              <Icon name="close-circle-outline" size={50} color="#DC3545" />
+              <Text style={styles.noBusTitle}>No Bus Assigned</Text>
+              <Text style={styles.noBusSub}>
+                Bus service is not available on {selectedDay?.day}
+              </Text>
+            </View>
+
           ) : (
+
             <>
               {/* ROUTE TITLE */}
               <View style={styles.infoRow}>
                 <Icon name="navigate-outline" size={20} color="#175812" />
-                <Text style={styles.infoText}>{route.title}</Text>
+                <Text style={styles.infoText}>
+                  {route?.arrival?.title}
+                </Text>
               </View>
-
-              <View style={styles.divider} />
 
               {/* ARRIVAL TIME */}
-              <Text style={styles.subTitle}>Arrival at University</Text>
-
               <View style={styles.infoRow}>
                 <Icon name="time-outline" size={20} color="#175812" />
-                <Text style={styles.infoText}>{route.arrival}</Text>
+                <Text style={styles.infoText}>
+                  Arrival: {route?.arrival?.time}
+                </Text>
+              </View>
+
+              {/* BUS NO */}
+              <View style={styles.infoRow}>
+                <Icon name="bus-outline" size={20} color="#175812" />
+                <Text style={styles.infoText}>
+                  Bus: {route?.arrival?.busNo}
+                </Text>
               </View>
 
               <View style={styles.divider} />
 
-              {/* ROUTE STOPS */}
+              {/* STOPS */}
               <Text style={styles.subTitle}>Pickup Stops</Text>
 
-              {route.stops.map((stop, index) => (
+              {route?.stops?.map((stop, index) => (
                 <View key={index} style={styles.stopRow}>
                   <View style={styles.timeline}>
                     <View style={styles.dot} />
@@ -163,13 +160,16 @@ const ArrivalSchedule = ({ navigation }) => {
                       <View style={styles.line} />
                     )}
                   </View>
-                  <Text style={styles.stopText}>{stop}</Text>
+                  <Text style={styles.stopText}>{stop.name}</Text>
                 </View>
               ))}
             </>
           )}
+
         </View>
+
       </ScrollView>
+
     </View>
   );
 };
