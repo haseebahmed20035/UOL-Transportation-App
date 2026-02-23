@@ -14,26 +14,58 @@ import ChangeRoute from './src/Screens/ChangeRoute'
 import RequestForTransport from './src/Screens/RequestForTransport'
 import MyArrivalRoute from './src/Screens/MyArrivalRoute'
 import MyDepartureRoute from './src/Screens/MyDepartureRoute'
+import Chatbot from './src/Screens/Chatbot'
+import MyPersonalInfo from './src/Screens/MyPersonalInfo'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
+function BottomTabs() {
+  return (
+    <Tab.Navigator
+  screenOptions={({route}) => ({
+  headerShown:false,
+  tabBarIcon: ({color, size}) => {
+
+    let iconName;
+
+    if(route.name === "Home"){
+      iconName = "home";
+    }
+    else if(route.name === "Chatbot"){
+      iconName = "chatbubble-ellipses";
+    }
+
+    return <Icon name={iconName} size={size} color={color}/>
+  }
+})}
+>
+      <Tab.Screen name="Home" component={MainScreen} />
+      <Tab.Screen name="Chatbot" component={Chatbot} />
+    </Tab.Navigator>
+  );
+}
+
 const App = () => {
   return (
     <View style={{ flex: 1 }}>
-        <NavigationContainer>
-          <Stack.Navigator initialRouteName="MainScreen" screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="MainScreen" component={MainScreen} />
-          <Stack.Screen name="MyRoute" component={MyRoute} />
-          <Stack.Screen name="AllRoutes" component={AllRoutes} />
-          <Stack.Screen name="BusSchedule" component={BusSchedule} />
-          <Stack.Screen name="DepartureSchedule" component={DepartureSchedule} />
-          <Stack.Screen name="ArrivalSchedule" component={ArrivalSchedule} />
-          <Stack.Screen name="LiveBusTracking" component={LiveBusTracking} />
-          <Stack.Screen name="ChangeRoute" component={ChangeRoute} />
-          <Stack.Screen name="RequestForTransport" component={RequestForTransport} />
-          <Stack.Screen name="MyArrivalRoute" component={MyArrivalRoute} />
-          <Stack.Screen name="MyDepartureRoute" component={MyDepartureRoute} />
-        </Stack.Navigator>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Tabs" screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Tabs" component={BottomTabs} />
+        <Stack.Screen name="MyRoute" component={MyRoute} />
+        <Stack.Screen name="AllRoutes" component={AllRoutes} />
+        <Stack.Screen name="BusSchedule" component={BusSchedule} />
+        <Stack.Screen name="DepartureSchedule" component={DepartureSchedule} />
+        <Stack.Screen name="ArrivalSchedule" component={ArrivalSchedule} />
+        <Stack.Screen name="LiveBusTracking" component={LiveBusTracking} />
+        <Stack.Screen name="ChangeRoute" component={ChangeRoute} />
+        <Stack.Screen name="RequestForTransport" component={RequestForTransport} />
+        <Stack.Screen name="MyArrivalRoute" component={MyArrivalRoute} />
+        <Stack.Screen name="MyDepartureRoute" component={MyDepartureRoute} />
+        <Stack.Screen name="MyPersonalInfo" component={MyPersonalInfo} />
+      </Stack.Navigator>
     </NavigationContainer>
     </View>
   )

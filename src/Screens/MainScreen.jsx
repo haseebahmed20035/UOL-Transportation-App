@@ -1,4 +1,5 @@
 import {
+  Alert,
   Image,
   ScrollView,
   StyleSheet,
@@ -6,13 +7,44 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
-import MyRoute from './MyRoute'
+import MyRoute from './MyRoute';
 import AllRoutes from './AllRoutes';
 import BusSchedule from './BusSchedule';
+import { Animated, TextInput } from 'react-native';
 
-const MainScreen = ({navigation}) => {
+const MainScreen = ({ navigation }) => {
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [recentScreens, setRecentScreens] = useState([]);
+  const [searchText, setSearchText] = useState('');
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
+
+  const navigateAndTrack = screenName => {
+    const time = new Date().toLocaleTimeString();
+
+    setRecentScreens(prev => {
+      const updated = [
+        { name: screenName, time },
+        ...prev.filter(s => s.name !== screenName),
+      ];
+      return updated.slice(0, 5);
+    });
+
+    navigation.navigate(screenName);
+  };
+
+  const appScreens = [
+    'MyRoute',
+    'AllRoutes',
+    'BusSchedule',
+    'LiveBusTracking',
+    'ChangeRoute',
+    'RequestForTransport',
+  ];
+  const filteredScreens = appScreens.filter(screen =>
+    screen.toLowerCase().includes(searchText.toLowerCase()),
+  );
   return (
     <View style={styles.container}>
       {/* HEADER */}
@@ -22,10 +54,7 @@ const MainScreen = ({navigation}) => {
         </TouchableOpacity>
 
         <View style={styles.headerCenter}>
-          <Image
-            source={require('../Images/uol.png')}
-            style={styles.logo}
-          />
+          <Image source={require('../Images/uol.png')} style={styles.logo} />
           <Text style={styles.headerText}>UOL Transportation</Text>
         </View>
 
@@ -38,12 +67,116 @@ const MainScreen = ({navigation}) => {
             <Icon name="notifications-outline" size={26} color="white" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.avatar}>
+          <TouchableOpacity
+            style={styles.avatar}
+            onPress={() => {
+              setMenuVisible(!menuVisible);
+              Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 300,
+                useNativeDriver: true,
+              }).start();
+            }}
+          >
             <Text style={styles.avatarText}>H</Text>
           </TouchableOpacity>
         </View>
       </View>
+      {menuVisible && (
+        <Animated.View
+          style={[
+            styles.dropdownMenu,
+            { opacity: fadeAnim, transform: [{ scale: fadeAnim }] },
+          ]}
+        >
+          {/* PROFILE HEADER */}
+          <View style={styles.profileSection}>
+            <View style={styles.profileCircle}>
+              <Text style={{ color: '#175812', fontWeight: 'bold' }}>H</Text>
+            </View>
+            <Text style={styles.profileName}>Haseeb</Text>
+          </View>
 
+          <View style={styles.divider} />
+
+          {/* HELP */}
+          <TouchableOpacity style={styles.menuRow}>
+            <Icon name="help-circle-outline" size={22} color="#175812" />
+            <Text style={styles.menuText}>Help Center</Text>
+          </TouchableOpacity>
+
+          {/* SETTINGS */}
+          <TouchableOpacity style={styles.menuRow}>
+            <Icon name="settings-outline" size={22} color="#175812" />
+            <Text style={styles.menuText}>Settings</Text>
+          </TouchableOpacity>
+
+          <View style={styles.divider} />
+
+          {/* RECENT */}
+          <Text style={styles.sectionTitle}>Recent Activities</Text>
+
+          <View style={styles.recentContainer}>
+            {recentScreens.length === 0 ? (
+              <Text style={{ fontSize: 12 }}>No Activity</Text>
+            ) : (
+              recentScreens.map((item, index) => (
+                <View key={index} style={styles.activityChip}>
+                  <Text style={{ fontSize: 11 }}>{item.name}</Text>
+                </View>
+              ))
+            )}
+          </View>
+
+          <View style={styles.divider} />
+
+          {/* FINDER */}
+          <Text style={styles.sectionTitle}>App Finder</Text>
+
+          <View style={styles.searchWrapper}>
+            <Icon name="search" size={16} color="gray" />
+            <TextInput
+              placeholder="Search screen..."
+              value={searchText}
+              onChangeText={setSearchText}
+              style={styles.searchBox}
+            />
+          </View>
+
+          {filteredScreens.map((screen, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.menuRow}
+              onPress={() => navigateAndTrack(screen)}
+            >
+              <Text style={styles.menuText}>🔍 {screen}</Text>
+            </TouchableOpacity>
+          ))}
+
+          <View style={styles.divider} />
+
+          {/* SIGN OUT */}
+          <TouchableOpacity
+            style={styles.signOutBtn}
+            onPress={() => {
+              Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
+                {
+                  text: 'No',
+                  style: 'cancel',
+                },
+                {
+                  text: 'Yes',
+                  onPress: () => navigation.replace('Login'),
+                },
+                
+              ]);
+            }}
+          >
+            <Icon name="log-out-outline" size={22} color="white" />
+            <Text style={{ color: 'white', marginLeft: 6 }}>Sign Out</Text>
+          </TouchableOpacity>
+        </Animated.View>
+      )}
       {/* CONTENT */}
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {/* ROUTE INFORMATION */}
@@ -51,39 +184,61 @@ const MainScreen = ({navigation}) => {
           <Text style={styles.cardTitle}>Route Information</Text>
 
           <View style={styles.row}>
-            <TouchableOpacity style={styles.box}
-            onPress={()=>{navigation.navigate('MyRoute')}}>
+            <TouchableOpacity
+              style={styles.box}
+              onPress={() => {
+                navigateAndTrack('MyRoute');
+              }}
+            >
               <Icon name="navigate-outline" size={26} color="#0F2F1B" />
               <Text style={styles.boxText}>My Route</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.box}
-            onPress={()=>{navigation.navigate('AllRoutes')}}>
+            <TouchableOpacity
+              style={styles.box}
+              onPress={() => {
+                navigateAndTrack('AllRoutes');
+              }}
+            >
               <Icon name="map-outline" size={26} color="#0F2F1B" />
               <Text style={styles.boxText}>All Routes</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.box}
-            onPress={()=>{navigation.navigate('BusSchedule')}}>
+            <TouchableOpacity
+              style={styles.box}
+              onPress={() => {
+                navigateAndTrack('BusSchedule');
+              }}
+            >
               <Icon name="calendar-outline" size={26} color="#0F2F1B" />
               <Text style={styles.boxText}>Bus Schedule</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.box}
-            onPress={()=>{navigation.navigate('LiveBusTracking')}}>
+            <TouchableOpacity
+              style={styles.box}
+              onPress={() => {
+                navigateAndTrack('LiveBusTracking');
+              }}
+            >
               <Icon name="bus-outline" size={26} color="#0F2F1B" />
               <Text style={styles.boxText}>Live Bus Tracking</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.box}
-            onPress={()=>{navigation.navigate('ChangeRoute')}}
+            <TouchableOpacity
+              style={styles.box}
+              onPress={() => {
+                navigateAndTrack('ChangeRoute');
+              }}
             >
               <Icon name="swap-horizontal-outline" size={26} color="#0F2F1B" />
               <Text style={styles.boxText}>Change Route</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.box}
-            onPress={()=>{navigation.navigate('RequestForTransport')}}
+            <TouchableOpacity
+              style={styles.box}
+              onPress={() => {
+                navigateAndTrack('RequestForTransport');
+              }}
             >
               <Icon name="document-text-outline" size={26} color="#0F2F1B" />
               <Text style={styles.boxText}>Request For Transport</Text>
@@ -96,7 +251,8 @@ const MainScreen = ({navigation}) => {
           <Text style={styles.cardTitle}>Personal Details</Text>
 
           <View style={styles.row}>
-            <TouchableOpacity style={styles.box}>
+            <TouchableOpacity style={styles.box}
+            onPress={()=>{navigateAndTrack('MyPersonalInfo')}}>
               <Icon name="person-outline" size={26} color="#0F2F1B" />
               <Text style={styles.boxText}>My Personal Information</Text>
             </TouchableOpacity>
@@ -225,11 +381,120 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     gap: 6,
   },
-  
+
   boxText: {
     fontSize: 14,
     fontWeight: '600',
     color: '#0F2F1B',
     textAlign: 'center',
+  },
+  dropdownMenu: {
+    position: 'absolute',
+    top: 70,
+    right: 20,
+    backgroundColor: '#fff',
+    width: 220,
+    borderRadius: 12,
+    padding: 10,
+    elevation: 5,
+    zIndex: 999,
+  },
+
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 8,
+  },
+
+  menuText: {
+    fontSize: 14,
+  },
+
+  menuHeading: {
+    fontWeight: 'bold',
+    marginVertical: 5,
+  },
+  searchBox: {
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 5,
+    marginVertical: 5,
+  },
+  profileSection: {
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+
+  profileCircle: {
+    height: 40,
+    width: 40,
+    backgroundColor: '#E6F2EA',
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  profileName: {
+    fontWeight: 'bold',
+    marginTop: 4,
+  },
+
+  divider: {
+    height: 1,
+    backgroundColor: '#eee',
+    marginVertical: 6,
+  },
+
+  menuRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 8,
+  },
+
+  sectionTitle: {
+    fontWeight: 'bold',
+    fontSize: 12,
+    marginVertical: 4,
+    color: '#175812',
+  },
+
+  recentContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 4,
+  },
+
+  activityChip: {
+    backgroundColor: '#E6F2EA',
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+
+  searchWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    paddingHorizontal: 6,
+  },
+
+  searchBox: {
+    flex: 1,
+    paddingVertical: 3,
+    marginLeft: 4,
+  },
+
+  signOutBtn: {
+    backgroundColor: '#D9534F',
+    padding: 8,
+    borderRadius: 8,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 4,
   },
 });
