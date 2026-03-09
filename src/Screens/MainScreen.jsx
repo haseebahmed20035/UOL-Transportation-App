@@ -7,29 +7,32 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MyRoute from './MyRoute';
 import AllRoutes from './AllRoutes';
 import BusSchedule from './BusSchedule';
 import { Animated, TextInput } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 const MainScreen = ({ navigation }) => {
   const [menuVisible, setMenuVisible] = useState(false);
   const [recentScreens, setRecentScreens] = useState([]);
   const [searchText, setSearchText] = useState('');
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
-
-  const navigateAndTrack = screenName => {
+  const [darkMode, setDarkMode] = useState(false);
+  const navigateAndTrack = async screenName => {
     const time = new Date().toLocaleTimeString();
 
-    setRecentScreens(prev => {
-      const updated = [
-        { name: screenName, time },
-        ...prev.filter(s => s.name !== screenName),
-      ];
-      return updated.slice(0, 5);
-    });
+    const updated = [
+      { name: screenName, time },
+      ...recentScreens.filter(s => s.name !== screenName),
+    ].slice(0, 5);
+
+    setRecentScreens(updated);
+
+    await AsyncStorage.setItem('recentScreens', JSON.stringify(updated));
 
     navigation.navigate(screenName);
   };
@@ -45,10 +48,37 @@ const MainScreen = ({ navigation }) => {
   const filteredScreens = appScreens.filter(screen =>
     screen.toLowerCase().includes(searchText.toLowerCase()),
   );
+  const loadScreenData = async () => {
+    try {
+      const storedTheme = await AsyncStorage.getItem('darkMode');
+      const storedRecent = await AsyncStorage.getItem('recentScreens');
+
+      setDarkMode(storedTheme ? JSON.parse(storedTheme) : false);
+      setRecentScreens(storedRecent ? JSON.parse(storedRecent) : []);
+    } catch (error) {
+      console.log('Error loading screen data:', error);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      loadScreenData();
+    }, []),
+  );
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: darkMode ? '#121212' : '#F5F7F6' },
+      ]}
+    >
       {/* HEADER */}
-      <View style={styles.header}>
+      <View
+        style={[
+          styles.header,
+          { backgroundColor: darkMode ? '#0D2E0A' : '#175812' },
+        ]}
+      >
         <TouchableOpacity>
           <Icon name="menu" size={28} color="#ffffff" />
         </TouchableOpacity>
@@ -100,13 +130,23 @@ const MainScreen = ({ navigation }) => {
           <View style={styles.divider} />
 
           {/* HELP */}
-          <TouchableOpacity style={styles.menuRow}>
+          <TouchableOpacity
+            style={styles.menuRow}
+            onPress={() => {
+              navigateAndTrack('Help');
+            }}
+          >
             <Icon name="help-circle-outline" size={22} color="#175812" />
             <Text style={styles.menuText}>Help Center</Text>
           </TouchableOpacity>
 
           {/* SETTINGS */}
-          <TouchableOpacity style={styles.menuRow}>
+          <TouchableOpacity
+            style={styles.menuRow}
+            onPress={() => {
+              navigateAndTrack('AppSettings');
+            }}
+          >
             <Icon name="settings-outline" size={22} color="#175812" />
             <Text style={styles.menuText}>Settings</Text>
           </TouchableOpacity>
@@ -168,7 +208,6 @@ const MainScreen = ({ navigation }) => {
                   text: 'Yes',
                   onPress: () => navigation.replace('Login'),
                 },
-                
               ]);
             }}
           >
@@ -180,103 +219,288 @@ const MainScreen = ({ navigation }) => {
       {/* CONTENT */}
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {/* ROUTE INFORMATION */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Route Information</Text>
+        <View
+          style={[
+            styles.card,
+            { backgroundColor: darkMode ? '#1E1E1E' : '#FFFFFF' },
+          ]}
+        >
+          <Text
+            style={[
+              styles.cardTitle,
+              { color: darkMode ? '#FFFFFF' : '#175812' },
+            ]}
+          >
+            Route Information
+          </Text>
 
           <View style={styles.row}>
             <TouchableOpacity
-              style={styles.box}
+              style={[
+                styles.box,
+                {
+                  backgroundColor: darkMode ? '#2D4733' : '#7FAF8A',
+                  borderColor: darkMode ? '#406B49' : 'rgba(26,128,63,0.5)',
+                },
+              ]}
               onPress={() => {
                 navigateAndTrack('MyRoute');
               }}
             >
-              <Icon name="navigate-outline" size={26} color="#0F2F1B" />
-              <Text style={styles.boxText}>My Route</Text>
+              <Icon name="navigate-outline" size={26} color={darkMode? "white" :"#0F2F1B"} />
+              <Text
+                style={[
+                  styles.boxText,
+                  { color: darkMode ? '#FFFFFF' : '#0F2F1B' },
+                ]}
+              >
+                My Route
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.box}
+              style={[
+                styles.box,
+                {
+                  backgroundColor: darkMode ? '#2D4733' : '#7FAF8A',
+                  borderColor: darkMode ? '#406B49' : 'rgba(26,128,63,0.5)',
+                },
+              ]}
               onPress={() => {
                 navigateAndTrack('AllRoutes');
               }}
             >
-              <Icon name="map-outline" size={26} color="#0F2F1B" />
-              <Text style={styles.boxText}>All Routes</Text>
+              <Icon name="map-outline" size={26} color={darkMode? "white" :"#0F2F1B"} />
+              <Text
+                style={[
+                  styles.boxText,
+                  { color: darkMode ? '#FFFFFF' : '#0F2F1B' },
+                ]}
+              >
+                All Routes
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.box}
+              style={[
+                styles.box,
+                {
+                  backgroundColor: darkMode ? '#2D4733' : '#7FAF8A',
+                  borderColor: darkMode ? '#406B49' : 'rgba(26,128,63,0.5)',
+                },
+              ]}
               onPress={() => {
                 navigateAndTrack('BusSchedule');
               }}
             >
-              <Icon name="calendar-outline" size={26} color="#0F2F1B" />
-              <Text style={styles.boxText}>Bus Schedule</Text>
+              <Icon name="calendar-outline" size={26} color={darkMode? "white" :"#0F2F1B"} />
+              <Text
+                style={[
+                  styles.boxText,
+                  { color: darkMode ? '#FFFFFF' : '#0F2F1B' },
+                ]}
+              >
+                Bus Schedule
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.box}
+              style={[
+                styles.box,
+                {
+                  backgroundColor: darkMode ? '#2D4733' : '#7FAF8A',
+                  borderColor: darkMode ? '#406B49' : 'rgba(26,128,63,0.5)',
+                },
+              ]}
               onPress={() => {
                 navigateAndTrack('LiveBusTracking');
               }}
             >
-              <Icon name="bus-outline" size={26} color="#0F2F1B" />
-              <Text style={styles.boxText}>Live Bus Tracking</Text>
+              <Icon name="bus-outline" size={26} color={darkMode? "white" :"#0F2F1B"} />
+              <Text
+                style={[
+                  styles.boxText,
+                  { color: darkMode ? '#FFFFFF' : '#0F2F1B' },
+                ]}
+              >
+                Live Bus Tracking
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.box}
+              style={[
+                styles.box,
+                {
+                  backgroundColor: darkMode ? '#2D4733' : '#7FAF8A',
+                  borderColor: darkMode ? '#406B49' : 'rgba(26,128,63,0.5)',
+                },
+              ]}
               onPress={() => {
                 navigateAndTrack('ChangeRoute');
               }}
             >
-              <Icon name="swap-horizontal-outline" size={26} color="#0F2F1B" />
-              <Text style={styles.boxText}>Change Route</Text>
+              <Icon name="swap-horizontal-outline" size={26} color={darkMode? "white" :"#0F2F1B"} />
+              <Text
+                style={[
+                  styles.boxText,
+                  { color: darkMode ? '#FFFFFF' : '#0F2F1B' },
+                ]}
+              >
+                Change Route
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.box}
+              style={[
+                styles.box,
+                {
+                  backgroundColor: darkMode ? '#2D4733' : '#7FAF8A',
+                  borderColor: darkMode ? '#406B49' : 'rgba(26,128,63,0.5)',
+                },
+              ]}
               onPress={() => {
                 navigateAndTrack('RequestForTransport');
               }}
             >
-              <Icon name="document-text-outline" size={26} color="#0F2F1B" />
-              <Text style={styles.boxText}>Request For Transport</Text>
+              <Icon name="document-text-outline" size={26} color={darkMode? "white" :"#0F2F1B"} />
+              <Text
+                style={[
+                  styles.boxText,
+                  { color: darkMode ? '#FFFFFF' : '#0F2F1B' },
+                ]}
+              >
+                Request For Transport
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* PERSONAL DETAILS */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Personal Details</Text>
+        <View
+          style={[
+            styles.card,
+            { backgroundColor: darkMode ? '#1E1E1E' : '#FFFFFF' },
+          ]}
+        >
+          <Text
+            style={[
+              styles.cardTitle,
+              { color: darkMode ? '#FFFFFF' : '#175812' },
+            ]}
+          >
+            Personal Details
+          </Text>
 
           <View style={styles.row}>
-            <TouchableOpacity style={styles.box}
-            onPress={()=>{navigateAndTrack('MyPersonalInfo')}}>
-              <Icon name="person-outline" size={26} color="#0F2F1B" />
-              <Text style={styles.boxText}>My Personal Information</Text>
+            <TouchableOpacity
+              style={[
+                styles.box,
+                {
+                  backgroundColor: darkMode ? '#2D4733' : '#7FAF8A',
+                  borderColor: darkMode ? '#406B49' : 'rgba(26,128,63,0.5)',
+                },
+              ]}
+              onPress={() => {
+                navigateAndTrack('MyPersonalInfo');
+              }}
+            >
+              <Icon name="person-outline" size={26} color={darkMode? "white" :"#0F2F1B"} />
+              <Text
+                style={[
+                  styles.boxText,
+                  { color: darkMode ? '#FFFFFF' : '#0F2F1B' },
+                ]}
+              >
+                My Personal Information
+              </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.box}>
-              <Icon name="receipt-outline" size={26} color="#0F2F1B" />
-              <Text style={styles.boxText}>Fee Voucher</Text>
+            <TouchableOpacity
+              style={[
+                styles.box,
+                {
+                  backgroundColor: darkMode ? '#2D4733' : '#7FAF8A',
+                  borderColor: darkMode ? '#406B49' : 'rgba(26,128,63,0.5)',
+                },
+              ]}
+              onPress={() => {
+                navigateAndTrack('FeeVoucher');
+              }}
+            >
+              <Icon name="receipt-outline" size={26} color={darkMode? "white" :"#0F2F1B"} />
+              <Text
+                style={[
+                  styles.boxText,
+                  { color: darkMode ? '#FFFFFF' : '#0F2F1B' },
+                ]}
+              >
+                Fee Voucher
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* APP SETTINGS */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>App Settings</Text>
+        <View
+          style={[
+            styles.card,
+            { backgroundColor: darkMode ? '#1E1E1E' : '#FFFFFF' },
+          ]}
+        >
+          <Text
+            style={[
+              styles.cardTitle,
+              { color: darkMode ? '#FFFFFF' : '#175812' },
+            ]}
+          >
+            App Settings
+          </Text>
 
           <View style={styles.row}>
-            <TouchableOpacity style={styles.box}>
-              <Icon name="settings-outline" size={26} color="#0F2F1B" />
-              <Text style={styles.boxText}>App Settings</Text>
+            <TouchableOpacity
+              style={[
+                styles.box,
+                {
+                  backgroundColor: darkMode ? '#2D4733' : '#7FAF8A',
+                  borderColor: darkMode ? '#406B49' : 'rgba(26,128,63,0.5)',
+                },
+              ]}
+              onPress={() => {
+                navigateAndTrack('AppSettings');
+              }}
+            >
+              <Icon name="settings-outline" size={26} color={darkMode? "white" :"#0F2F1B"} />
+              <Text
+                style={[
+                  styles.boxText,
+                  { color: darkMode ? '#FFFFFF' : '#0F2F1B' },
+                ]}
+              >
+                App Settings
+              </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.box}>
-              <Icon name="help-circle-outline" size={30} color="#0F2F1B" />
-              <Text style={styles.boxText}>Help</Text>
+            <TouchableOpacity
+              style={[
+                styles.box,
+                {
+                  backgroundColor: darkMode ? '#2D4733' : '#7FAF8A',
+                  borderColor: darkMode ? '#406B49' : 'rgba(26,128,63,0.5)',
+                },
+              ]}
+              onPress={() => {
+                navigateAndTrack('Help');
+              }}
+            >
+              <Icon name="help-circle-outline" size={30} color={darkMode? "white" :"#0F2F1B"} />
+              <Text
+                style={[
+                  styles.boxText,
+                  { color: darkMode ? '#FFFFFF' : '#0F2F1B' },
+                ]}
+              >
+                Help
+              </Text>
             </TouchableOpacity>
           </View>
         </View>

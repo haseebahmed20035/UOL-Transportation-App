@@ -17,6 +17,9 @@ import MyDepartureRoute from './src/Screens/MyDepartureRoute'
 import Chatbot from './src/Screens/Chatbot'
 import MyPersonalInfo from './src/Screens/MyPersonalInfo'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import AppSettings from './src/Screens/AppSettings'
+import FeeVoucher from './src/Screens/FeeVoucher'
+import Help from './src/Screens/Help'
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const Stack = createNativeStackNavigator();
@@ -65,6 +68,9 @@ const App = () => {
         <Stack.Screen name="MyArrivalRoute" component={MyArrivalRoute} />
         <Stack.Screen name="MyDepartureRoute" component={MyDepartureRoute} />
         <Stack.Screen name="MyPersonalInfo" component={MyPersonalInfo} />
+        <Stack.Screen name="AppSettings" component={AppSettings} />
+        <Stack.Screen name="FeeVoucher" component={FeeVoucher} />
+        <Stack.Screen name="Help" component={Help} />
       </Stack.Navigator>
     </NavigationContainer>
     </View>
